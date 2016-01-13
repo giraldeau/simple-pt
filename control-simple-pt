@@ -1,0 +1,35 @@
+#!/bin/bash
+
+if [ $# -lt 1 ]
+then
+        echo "Usage : $0 [load|unload|reload]"
+        exit
+fi
+
+modules="simple-pt latirq-pt"
+
+manage_modules() {
+	op=$1
+	for mod in $modules; do
+		sudo $op $mod
+	done
+}
+
+sudo make KDIR=../linux-dev modules_install
+sudo depmod -a
+
+case "$1" in
+load)
+	manage_modules modprobe
+    ;;
+unload)
+	manage_modules rmmod
+    ;;
+reload)
+	manage_modules rmmod
+	manage_modules modprobe
+    ;;
+*) echo "unkown command $1"
+   ;;
+esac
+
