@@ -82,7 +82,7 @@ Install libelf-elf-devel or elfutils-devel or similar depending on your distribu
 
 Optional install udis86 if you want to see disassembled instructions:
 
-	git clone https://udis86.git.sourceforge.net/gitroot/udis86/udis86
+	git clone https://github.com/vmt/udis86.git
 	cd udis86
 	./configure
 	make
