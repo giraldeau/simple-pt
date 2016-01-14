@@ -15,7 +15,10 @@ MAN := sptdump.man fastdecode.man sptdecode.man ptfeature.man sptcmd.man \
 
 KDIR = /lib/modules/`uname -r`/build
 obj-m := simple-pt.o
-obj-m := latirq-pt.o lttng-tracepoint.o
+
+obj-m += latirq-pt-main.o
+latirq-pt-main-objs := lttng-tracepoint.o latirq-pt.o
+
 M := make -C ${KDIR} M=`pwd`
 
 CFLAGS_simple-pt.o := -DTRACE_INCLUDE_PATH=${M}
@@ -60,5 +63,8 @@ dumpkcore: LDLIBS += -lelf
 
 %.html: %.man
 	man -Thtml ./$^ > $@
+
+%.i: %.c
+	$(MAKE) -C $(KDIR) M=$(PWD) $@
 
 man-html: ${MANHTML}

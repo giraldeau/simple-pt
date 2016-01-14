@@ -67,38 +67,6 @@
 #include "compat.h"
 #include "simple-pt.h"
 
-#define MSR_IA32_RTIT_OUTPUT_BASE	0x00000560
-#define MSR_IA32_RTIT_OUTPUT_MASK_PTRS	0x00000561
-#define MSR_IA32_RTIT_CTL		0x00000570
-#define TRACE_EN	BIT_ULL(0)
-#define CYC_EN		BIT_ULL(1)
-#define CTL_OS		BIT_ULL(2)
-#define CTL_USER	BIT_ULL(3)
-#define PT_ERROR	BIT_ULL(4)
-#define CR3_FILTER	BIT_ULL(7)
-#define TO_PA		BIT_ULL(8)
-#define MTC_EN		BIT_ULL(9)
-#define TSC_EN		BIT_ULL(10)
-#define DIS_RETC	BIT_ULL(11)
-#define BRANCH_EN	BIT_ULL(13)
-#define MTC_MASK	(0xf << 14)
-#define CYC_MASK	(0xf << 19)
-#define PSB_MASK	(0xf << 24)
-#define ADDR0_SHIFT	32
-#define ADDR1_SHIFT	32
-#define ADDR0_MASK	(0xfULL << ADDR0_SHIFT)
-#define ADDR1_MASK	(0xfULL << ADDR1_SHIFT)
-#define MSR_IA32_RTIT_STATUS		0x00000571
-#define MSR_IA32_CR3_MATCH		0x00000572
-#define TOPA_STOP	BIT_ULL(4)
-#define TOPA_INT	BIT_ULL(2)
-#define TOPA_END	BIT_ULL(0)
-#define TOPA_SIZE_SHIFT 6
-#define MSR_IA32_ADDR0_START		0x00000580
-#define MSR_IA32_ADDR0_END		0x00000581
-#define MSR_IA32_ADDR1_START		0x00000582
-#define MSR_IA32_ADDR1_END		0x00000583
-
 static bool delay_start;
 
 static void restart(void);
@@ -272,7 +240,7 @@ static struct kernel_param_ops trace_stop_ops = {
 
 static DEFINE_PER_CPU(unsigned long, pt_buffer_cpu);
 static DEFINE_PER_CPU(u64 *, topa_cpu);
-static DEFINE_PER_CPU(bool, pt_running);
+DEFINE_PER_CPU(bool, pt_running);
 static DEFINE_PER_CPU(u64, pt_offset);
 static int pt_error;
 static bool initialized;
@@ -281,6 +249,8 @@ static unsigned psb_freq_mask;
 static unsigned cyc_thresh_mask;
 static unsigned mtc_freq_mask;
 static unsigned addr_cfg_max;
+
+EXPORT_PER_CPU_SYMBOL_GPL(pt_running);
 
 static int pt_buffer_order = 9;
 module_param(pt_buffer_order, int, 0444);

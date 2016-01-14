@@ -19,13 +19,48 @@
 
 
 #include <linux/module.h>
+#include <linux/printk.h>
+#include <linux/percpu.h>
 #include "wrapper/tracepoint.h"
+
+#include "simple-pt.h"
+
+/*
+static int probe_start(struct kprobe *kp, struct pt_regs *regs)
+{
+	if (__this_cpu_read(pt_running)) {
+		u64 val;
+		pt_rdmsrl_safe(MSR_IA32_RTIT_CTL, &val);
+		val |= TRACE_EN;
+		pt_wrmsrl_safe(MSR_IA32_RTIT_CTL, val);
+	}
+	return 0;
+}
+
+static int probe_stop(struct kprobe *kp, struct pt_regs *regs)
+{
+	if (__this_cpu_read(pt_running)) {
+		u64 val;
+		pt_rdmsrl_safe(MSR_IA32_RTIT_CTL, &val);
+		val &= ~TRACE_EN;
+		pt_wrmsrl_safe(MSR_IA32_RTIT_CTL, val);
+	}
+	return 0;
+}
+*/
 
 static
 void probe_core_critical_timing_start(void *ignore, unsigned long ip,
 		unsigned long parent_ip, unsigned long flags, int preempt_cnt,
 		cycles_t delta_ns)
 {
+	/*
+	if (__this_cpu_read(pt_running)) {
+		if (printk_ratelimit()) {
+			printk("hello latirq!\n");
+		}
+	}
+	*/
 	/*TODO:
 	 * TRACE_EN*/
 }
@@ -53,22 +88,16 @@ void probe_core_critical_timing_hit(void *ignore, unsigned long ip,
 static
 int __init latirq_init(void)
 {
-	int ret;
-	/*
+	int ret = 0;
 
-	tracker = latency_tracker_create("critical_timings");
-	if (!tracker)
-		goto error;
-	latency_tracker_debugfs_setup_wakeup_pipe(tracker);
-	 */
-	ret = lttng_wrapper_tracepoint_probe_register("core_critical_timing_hit",
+	ret |= lttng_wrapper_tracepoint_probe_register("core_critical_timing_hit",
 			probe_core_critical_timing_hit, NULL);
-	ret = lttng_wrapper_tracepoint_probe_register("core_critical_timing_start",
+	ret |= lttng_wrapper_tracepoint_probe_register("core_critical_timing_start",
 			probe_core_critical_timing_start, NULL);
-	ret = lttng_wrapper_tracepoint_probe_register("core_critical_timing_stop",
+	ret |= lttng_wrapper_tracepoint_probe_register("core_critical_timing_stop",
 			probe_core_critical_timing_stop, NULL);
-	WARN_ON(ret);
 
+	WARN_ON(ret);
 	/*TODO:
 	 * pt_init()
 	 * create buffer
@@ -76,11 +105,6 @@ int __init latirq_init(void)
 	 */
 
 	printk("hello latirq!\n");
-	goto end;
-
-error:
-	ret = -1;
-end:
 	return ret;
 }
 module_init(latirq_init);
@@ -88,27 +112,19 @@ module_init(latirq_init);
 static
 void __exit latirq_exit(void)
 {
-	int ret;
 	lttng_wrapper_tracepoint_probe_unregister("core_critical_timing_hit",
 			probe_core_critical_timing_hit, NULL);
 	lttng_wrapper_tracepoint_probe_unregister("core_critical_timing_start",
 			probe_core_critical_timing_start, NULL);
 	lttng_wrapper_tracepoint_probe_unregister("core_critical_timing_stop",
 			probe_core_critical_timing_stop, NULL);
-
 	/*TODO:
 	 * stop_pt()
 	 * pt_teardown()
 	 * destroy buffer
 	 */
 
-	/*
-	lttng_wrapper_tracepoint_probe_unregister("core_critical_timing_hit",
-			probe_core_critical_timing_hit, NULL);
-	tracepoint_synchronize_unregister();
-	latency_tracker_destroy(tracker);
-	*/
-	printk("bye cruel world (from latirq)\n");
+	printk("bye latirq\n");
 }
 module_exit(latirq_exit);
 

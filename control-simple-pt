@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/bash -x
 
 if [ $# -lt 1 ]
 then
@@ -6,7 +6,7 @@ then
         exit
 fi
 
-modules="simple-pt latirq-pt"
+modules="simple-pt latirq-pt-main"
 
 manage_modules() {
 	op=$1
