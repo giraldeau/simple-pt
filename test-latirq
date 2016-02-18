@@ -1,0 +1,79 @@
+#!/bin/sh -x
+
+rmmod latirq_pt_main
+rmmod simple_pt
+insmod simple-pt.ko
+insmod latirq-pt-main.ko
+
+R=$(pwd)/results
+mkdir -p $R
+
+# Configure PT
+
+# TODO Clear on start also
+
+C=/sys/module/simple_pt/parameters
+T=/sys/kernel/debug/tracing
+
+# Setup stuff
+KERNEL=1
+MTC_FREQ=10
+CYC_THRESH=1
+PSB_FREQ=1
+START_RANGE='start_critical_timings'
+END_RANGE='stop_critical_timings'
+PREFIX="$R/ptout"
+ENUMALL=1
+
+echo $KERNEL > $C/kernel
+echo 1 > $T/events/pttp/msr/enable
+echo 1 > $T/events/pttp/exec_cr3/enable
+echo 1 > $T/events/pttp/mmap_cr3/enable
+echo 1 > $T/events/pttp/process_cr3/enable
+echo $MTC_FREQ > $C/mtc_freq
+echo $CYC_THRESH > $C/cyc_thresh
+echo $PSB_FREQ > $C/psb_freq
+echo $ENUMALL > $C/enumerate_all
+
+#echo 0 > $C/trace_start
+#echo 0 > $C/trace_stop
+echo > $T/trace
+
+echo > $C/comm_filter
+echo 0 > $C/cr3_filter
+
+# Trace only between the two symbols in kernel
+echo 1 > $C/addr0_cfg
+echo $START_RANGE > $C/addr0_start
+echo $END_RANGE > $C/addr0_end
+#echo $START_RANGE > $C/trace_start
+#echo $END_RANGE > $C/trace_stop
+
+# PT start
+echo 1 > $C/start
+
+# Workload
+echo preemptirqsoff > /sys/kernel/debug/tracing/current_tracer
+echo 1 > /sys/kernel/debug/tracing/tracing_thresh
+echo 1 > /sys/kernel/debug/tracing/tracing_on
+sleep 2
+echo 0 > /sys/kernel/debug/tracing/tracing_on
+
+# PT Stop
+echo 0 > $C/start
+
+echo 0 > $T/events/pttp/exec_cr3/enable
+echo 0 > $T/events/pttp/mmap_cr3/enable
+echo 0 > $T/events/pttp/process_cr3/enable
+echo 0 > $T/events/pttp/msr/enable
+
+# Save and decode generated trace 
+
+./sptdump $PREFIX
+./ptfeature > ${PREFIX}.cpuid
+./sptsideband.py $T/trace ${PREFIX}.maps ${PREFIX}.cpuid $MTC_FREQ > ${PREFIX}.sideband
+
+./sptdecode --pt ${PREFIX}.0  > ${PREFIX}.0.decoded
+./sptdecode --pt ${PREFIX}.1  > ${PREFIX}.1.decoded
+./sptdecode --pt ${PREFIX}.2  > ${PREFIX}.2.decoded
+./sptdecode --pt ${PREFIX}.3  > ${PREFIX}.3.decoded
