@@ -1,0 +1,8 @@
+meta nom_freq 35
+meta family 6
+meta model 94
+meta stepping 3
+meta mtc_freq 1
+82377.771935 17930 3ae484000 400000 0	/usr/bin/sleep
+82377.771941 17930 3ae484000 7f654bacc000 0	/usr/lib64/ld-2.21.so
+82377.772049 17930 3ae484000 7f654b70c000 0	/usr/lib64/libc-2.21.so

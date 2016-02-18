@@ -1,0 +1,5 @@
+cpu   0 offset  43264,    42 KB, writing to ptout.0
+cpu   1 offset  59824,    58 KB, writing to ptout.1
+cpu   2 offset  26256,    25 KB, writing to ptout.2
+cpu   3 offset 135904,   132 KB, writing to ptout.3
+Wrote sideband to ptout.sideband

@@ -1,0 +1,13 @@
+ptout.0
+ptout.1
+ptout.2
+ptout.3
+ptout.cpuid
+ptout.maps
+ptout.sideband
+sptcmd.log
+cpu   0 offset  25296,    24 KB, writing to ptout.0
+cpu   1 offset   1408,     1 KB, writing to ptout.1
+cpu   2 offset  10192,     9 KB, writing to ptout.2
+cpu   3 offset 201008,   196 KB, writing to ptout.3
+Wrote sideband to ptout.sideband

@@ -1,0 +1,34 @@
+#!/usr/bin/env python3
+
+import os
+from subprocess import call
+import re
+
+
+regx = re.compile("ptout.[0-9]+")
+def spt(name, cmd):
+    if not os.path.exists(name):
+        os.mkdir(name)
+    oldpwd = os.getcwd()
+    os.chdir(name)
+    if type(cmd) == str:
+        cmd = cmd.split(" ")
+    with open("sptcmd.log", "w") as log:
+        spt_cmd = ["sptcmd", "--cyc", "1", "--mtc", "1", "--psb", "1", "--comm", cmd[0], "--" ] + cmd
+        print(spt_cmd)
+        call(spt_cmd, stdout=log)
+    lst = [x for x in os.listdir(os.getcwd()) if regx.match(x)]
+    for out in lst:
+        with open(out + ".decoded", "w") as dec:
+            call(["sptdecode", "-s", "ptout.sideband", "--pt", out], stdout=dec)
+    os.chdir(oldpwd)
+
+cmds = {
+    "sleep": "sleep 0.1",
+    "ls": "ls",
+    "ping": "ping -c 1 localhost",
+}
+
+for name, cmd in cmds.items():
+    spt(name, cmd)
+

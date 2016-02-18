@@ -1,0 +1,11 @@
+PING localhost.localdomain (127.0.0.1) 56(84) bytes of data.
+64 bytes from localhost.localdomain (127.0.0.1): icmp_seq=1 ttl=64 time=0.027 ms
+
+--- localhost.localdomain ping statistics ---
+1 packets transmitted, 1 received, 0% packet loss, time 0ms
+rtt min/avg/max/mdev = 0.027/0.027/0.027/0.000 ms
+cpu   0 offset  25808,    25 KB, writing to ptout.0
+cpu   1 offset   1456,     1 KB, writing to ptout.1
+cpu   2 offset   8992,     8 KB, writing to ptout.2
+cpu   3 offset 233808,   228 KB, writing to ptout.3
+Wrote sideband to ptout.sideband
